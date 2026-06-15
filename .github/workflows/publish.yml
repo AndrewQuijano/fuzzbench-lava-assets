@@ -1,0 +1,48 @@
+name: Publish Tarballs and Injected Code
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+        description: "Select the type of version bump for the release"
+
+jobs:
+  create_release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      v-version: ${{ steps.version.outputs.v-version }}
+    steps:
+      - name: Get next version
+        uses: reecetech/version-increment@2024.10.1
+        id: version
+        with:
+          release_branch: main
+          use_api: true
+          increment: ${{ github.event.inputs.bump_type || 'patch' }}
+
+  create_release_assets:
+    needs: [create_release]
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+    - name: Upload wheel package to release
+      uses: softprops/action-gh-release@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.create_release.outputs.v-version }}
+        draft: false
+        generate_release_notes: true
+        prerelease: false
+        name: ${{ needs.create_release.outputs.v-version }} @ ${{ github.ref }}
+        files: |
+          dist/*
+          debs/**.deb

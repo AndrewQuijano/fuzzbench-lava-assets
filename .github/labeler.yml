@@ -1,0 +1,16 @@
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
+
+github-files:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
+
+tarball:
+  - changed-files:
+    - any-glob-to-any-file: 'target_bins/**'
+
+config:
+  - changed-files:
+    - any-glob-to-any-file: 'target_configs/**'
+
